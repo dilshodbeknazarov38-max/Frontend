@@ -3,10 +3,9 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Validator;
-use App\Models\Lead;
 use App\Models\Product;
 use App\Models\Setting;
-use App\Services\LeadDispatcher;
+use App\Services\LeadManager;
 
 class LandingController extends Controller
 {
@@ -28,7 +27,7 @@ class LandingController extends Controller
         $this->csrfGuard();
         $product = Product::findBySlug($slug);
         if (!$product) {
-            return $this->json(['success' => false, 'message' => 'Mahsulot topilmadi']);
+            return $this->json(['success' => false, 'message' => 'Mahsulot topilmadi', 'token' => csrf_token()]);
         }
         $data = [
             'full_name' => sanitize($_POST['full_name'] ?? ''),
@@ -39,27 +38,18 @@ class LandingController extends Controller
             'phone' => 'required|max:20',
         ]);
         if ($errors) {
-            return $this->json(['success' => false, 'message' => current($errors)]);
+            return $this->json(['success' => false, 'message' => current($errors), 'token' => csrf_token()]);
         }
-        $dispatcher = new LeadDispatcher();
-        $payload = [
-            'full_name' => $data['full_name'],
-            'phone' => $data['phone'],
-            'product_id' => $product['id'],
-            'product_name' => $product['name'],
-            'slug' => $product['slug'],
-        ];
-        $response = $dispatcher->sendToFlow($product['flow_url'], $payload);
-        $status = ($response['status'] ?? 0) >= 200 && ($response['status'] ?? 0) < 300 ? 'success' : 'failed';
-        Lead::create([
-            'full_name' => $data['full_name'],
-            'phone' => $data['phone'],
-            'product_id' => $product['id'],
-            'flow_status' => $status,
-        ]);
+        $manager = new LeadManager();
+        $result = $manager->submit($data, $product);
+        $success = $result['status'] === 'sent';
         return $this->json([
-            'success' => true,
-            'message' => 'Buyurtmangiz qabul qilindi! Operator tez orada bog\'lanadi.',
+            'success' => $success,
+            'lead_id' => $result['lead_id'],
+            'token' => csrf_token(),
+            'message' => $success
+                ? 'Buyurtmangiz qabul qilindi! Operator tez orada bog\'lanadi.'
+                : 'Hozircha qayta urinib ko\'ring, tizimda uzilish yuz berdi.',
         ]);
     }
 

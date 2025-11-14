@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS leads (
     product_id INT NOT NULL,
     full_name VARCHAR(150) NOT NULL,
     phone VARCHAR(30) NOT NULL,
-    flow_status ENUM('success','failed') DEFAULT 'success',
+    flow_status ENUM('pending','sent','failed') DEFAULT 'pending',
+    retry_count INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -43,6 +44,16 @@ CREATE TABLE IF NOT EXISTS settings (
     `key` VARCHAR(120) NOT NULL UNIQUE,
     `value` TEXT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS flow_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    lead_id INT NOT NULL,
+    request_payload JSON NOT NULL,
+    response_status INT NULL,
+    response_body TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO categories (name) VALUES ('Elektronika'), ('Go\'zallik'), ('Uy-ro\'zg\'or'), ('Sport') ON DUPLICATE KEY UPDATE name=VALUES(name);

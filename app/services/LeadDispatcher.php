@@ -1,10 +1,16 @@
 <?php
 namespace App\Services;
 
+use App\Models\FlowLog;
+
 class LeadDispatcher
 {
-    public function sendToFlow(string $url, array $payload): array
+    public function sendToFlow(string $url, array $payload, ?int $leadId = null): array
     {
+        $response = '';
+        $error = '';
+        $status = 0;
+
         if (function_exists('curl_init')) {
             $ch = curl_init($url);
             if ($ch !== false) {
@@ -34,13 +40,34 @@ class LeadDispatcher
             ];
             $context = stream_context_create($options);
             $response = @file_get_contents($url, false, $context);
-            $status = $response === false ? 500 : 200;
+            $status = $response === false ? self::detectStreamStatus() : 200;
             $error = $response === false ? 'stream error' : '';
         }
+
+        $responseBody = is_string($response) ? $response : '';
+
+        if ($leadId !== null) {
+            FlowLog::create([
+                'lead_id' => $leadId,
+                'request_payload' => $payload,
+                'response_status' => $status,
+                'response_body' => $responseBody ?: $error,
+            ]);
+        }
+
         return [
             'status' => $status,
             'error' => $error,
-            'response' => $response,
+            'response' => $responseBody,
         ];
+    }
+
+    private static function detectStreamStatus(): int
+    {
+        global $http_response_header;
+        if (!empty($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $matches)) {
+            return (int)$matches[1];
+        }
+        return 500;
     }
 }

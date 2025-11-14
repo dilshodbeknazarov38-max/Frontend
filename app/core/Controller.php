@@ -28,5 +28,6 @@ class Controller
             http_response_code(419);
             exit('CSRF token mismatch.');
         }
+        rotate_csrf_token();
     }
 }

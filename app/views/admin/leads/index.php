@@ -34,16 +34,24 @@
                 <th>Ism</th>
                 <th>Telefon</th>
                 <th>Mahsulot</th>
+                <th>Holat</th>
+                <th>Retry</th>
                 <th>Sana</th>
             </tr>
         </thead>
         <tbody>
         <?php foreach ($leads as $lead): ?>
+            <?php
+                $status = $lead['flow_status'] ?? 'pending';
+                $badge = ($status === 'sent' || $status === 'success') ? 'success' : ($status === 'pending' ? 'secondary' : 'danger');
+            ?>
             <tr>
                 <td><?= (int)$lead['id'] ?></td>
                 <td><?= htmlspecialchars($lead['full_name'], ENT_QUOTES, 'UTF-8') ?></td>
                 <td><?= htmlspecialchars($lead['phone'], ENT_QUOTES, 'UTF-8') ?></td>
                 <td><?= htmlspecialchars($lead['product_name'] ?? '-', ENT_QUOTES, 'UTF-8') ?></td>
+                <td><span class="badge bg-<?= $badge ?>"><?= htmlspecialchars($status, ENT_QUOTES, 'UTF-8') ?></span></td>
+                <td><?= (int)$lead['retry_count'] ?></td>
                 <td><?= date('d.m.Y H:i', strtotime($lead['created_at'])) ?></td>
             </tr>
         <?php endforeach; ?>

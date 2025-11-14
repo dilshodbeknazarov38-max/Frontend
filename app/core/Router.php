@@ -21,6 +21,11 @@ class Router
         $this->addRoute('POST', $pattern, $action);
     }
 
+    public function options(string $pattern, string $action): void
+    {
+        $this->addRoute('OPTIONS', $pattern, $action);
+    }
+
     private function addRoute(string $method, string $pattern, string $action): void
     {
         $regex = preg_replace('#\{([a-zA-Z_][a-zA-Z0-9_-]*)\}#', '(?P<$1>[^/]+)', $pattern);

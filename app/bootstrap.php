@@ -26,6 +26,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once BASE_PATH . '/app/helpers/helpers.php';
+require_once BASE_PATH . '/app/helpers/security.php';
 
 spl_autoload_register(function ($class) {
     $prefix = 'App\\';

@@ -88,6 +88,12 @@ form.addEventListener('submit', async (e) => {
             }
             <?php endif; ?>
         }
+        if (json.token) {
+            const tokenField = form.querySelector('input[name=\"_token\"]');
+            if (tokenField) {
+                tokenField.value = json.token;
+            }
+        }
     } catch (error) {
         msg.style.display = 'block';
         msg.className = 'alert';

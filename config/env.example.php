@@ -15,4 +15,11 @@ return [
         'session_name' => 'cpa_session',
         'csrf_key' => 'change_this_random_key',
     ],
+    'api' => [
+        'key' => 'change_this_api_key',
+        'rate_limit' => [
+            'max_requests' => 60,
+            'decay_seconds' => 60,
+        ],
+    ],
 ];

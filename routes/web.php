@@ -31,4 +31,11 @@ $router->get('/admin/leads/export', 'LeadController@export');
 // Settings
 $router->any('/admin/settings', 'SettingsController@index');
 
+// API
+$router->options('/api/lead', 'Api\\LeadApiController@options');
+$router->post('/api/lead', 'Api\\LeadApiController@store');
+$router->post('/api/retry-leads', 'Api\\FlowRetryController@retry');
+$router->get('/api/flow-logs', 'Api\\FlowLogController@index');
+$router->get('/api/health', 'Api\\HealthController@index');
+
 return $router;
