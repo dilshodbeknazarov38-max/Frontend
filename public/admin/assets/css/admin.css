@@ -1,0 +1,4 @@
+body { background-color: #f8faf9; }
+.navbar-brand { font-weight: 600; }
+.table img { max-width: 80px; border-radius: 8px; }
+.badge-status { text-transform: uppercase; }
